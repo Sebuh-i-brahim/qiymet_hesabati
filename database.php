@@ -130,7 +130,8 @@ class db
 			return false;
 		}
 	}
-	static public function($request)
+	
+	static public function edit($request)
 	{
 		$sql = "SELECT * FROM qiymets WHERE fenn_id =".$request['fenn']." AND (create_date >".$request['tarix1']." AND create_date <".$request['tarix2'].")";
 
