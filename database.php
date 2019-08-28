@@ -70,6 +70,14 @@ class YeniSQL
 
 		return $result;
 	}
+	public function server()
+	{
+		$mysqli = new mysqli($this->hostname, $this->username, $this->password, $this->db);
+		if ($mysqli->connect_error) {
+		    die("Connection failed: " . $this->conn->connect_error);
+		}
+		return $mysqli;
+	}
 	
 }
 
@@ -93,7 +101,31 @@ class db
 				$sql2 .= $last_id."', '".$data[$i]."'),('";
 			}
 		}
-		$conn->yarat($sql2, $last_id);
+		$conn->yarat($sql2);
+
+		$sql3 = "SELECT id FROM fenns WHERE user_id =".$last_id;
+		$nano = $conn->all($sql3);
+
+
+		foreach ($nano as $aaa) {
+			$fenn_id[] = $aaa;
+		}
+
+		$mysqli = $conn->server();
+		
+
+		$sql4 = "INSERT INTO qiymets (fenn_id) VALUES ";
+		for($b = 0; $b < count($fenn_id); $b++){
+
+			if($b == count($fenn_id)-1){
+				$sql4 .= "('". $mysqli->real_escape_string($fenn_id[$b]['id'])."')";
+			}
+			else{
+				$sql4 .="('".$mysqli->real_escape_string($fenn_id[$b]['id'])."'),";
+			}
+		}
+		
+		$conn->yarat($sql4);
 	}
 
 
