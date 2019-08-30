@@ -63,7 +63,7 @@ if (session_status() == PHP_SESSION_NONE) {
 									<label for="adSoyad" id="adSoyadlabel">Ad/Soyad/Ata adı:</label>
 								</div>
 								<div class="md-form">
-									<input type="text" class="form-control" onfocus="lfocus(this.id, this.id+'label');" onblur="lblur(this.id, this.id+'label');" required name="fenn1" id="fenn1" onkeyup="yukle(this.id);">
+									<input type="text" class="form-control" onfocus="lfocus(this.id, this.id+'label');" onblur="lblur(this.id, this.id+'label');" required name="fenn1" id="fenn1" onkeyup="yukle(this.id);" autocomplete="off">
 									<label for="fenn1" id="fenn1label">Fənn 1</label>
 								</div>
 							</div>
@@ -94,7 +94,7 @@ if (session_status() == PHP_SESSION_NONE) {
 			$(document).ready(function(){	
 				$("#add").on("click", function(){
 					var count = $("input").length - 1;
-					var text = '<div class="md-form">'+ '<input type="text" class="form-control" onfocus="lfocus(this.id, this.id+\'label\');" onkeyup="yukle(this.id);" onblur="lblur(this.id, this.id+\'label\');" required name="fenn'+ count + '" id="fenn'+count+'"><label for="fenn'+count+'" id="fenn'+count+'label">Fənn '+count+'</label></div>';
+					var text = '<div class="md-form">'+ '<input type="text" class="form-control" onfocus="lfocus(this.id, this.id+\'label\');" onkeyup="yukle(this.id);" onblur="lblur(this.id, this.id+\'label\');" required name="fenn'+ count + '" id="fenn'+count+'" autocomplete="off"><label for="fenn'+count+'" id="fenn'+count+'label">Fənn '+count+'</label></div>';
 					$("#fennElave").append(text)
 				});
 
