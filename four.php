@@ -5,11 +5,11 @@ session_start();
 
 $fennJ = file_get_contents("fenn.json");
 
-if(!isset($_SESSION['sagird'])){
+if(empty($_SESSION['sagird'])){
 	header("Location: back.php?page=four");
 }
 
-var_dump($_SESSION['all']);
+
 
 ?>
 <!DOCTYPE html>
@@ -106,6 +106,12 @@ var_dump($_SESSION['all']);
 					
 				</div>
 				</form>
+				<?php
+				if (isset($_SESSION['all']) && !empty($_SESSION['all'])) {
+					echo "<ul><li><h4>Netice Asagidadi</h4></li></ul>";
+				}
+
+				?>
 				<div>
 					<table class="table">
 						<tbody>
@@ -232,7 +238,11 @@ var_dump($_SESSION['all']);
 </body>
 </html>
 <?php
-if(isset($_SESSION['all'])){
+if (isset($_SESSION['all']) && !empty($_SESSION['all'])) {
+	var_dump($_SESSION['all']);
+}
+
+if(isset($_SESSION['all']) ){
 	session_destroy();
 }
 ?>
