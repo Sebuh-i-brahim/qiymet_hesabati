@@ -349,10 +349,10 @@ class db
 
 				for ($b=0; $b < count($request['fenns[]']); $b++) { 
 					if ($b==0) {
-						$fn.= "fenns.fenn = '".mb_convert_encoding ($request['fenns[]'][$b],"latin1_swedish_ci")."'";
+						$fn.= "fenns.fenn = '".$request['fenns[]'][$b]."'";
 					}
 					else{
-						$fn.= " OR fenns.fenn = '".mb_convert_encoding ($request['fenns[]'][$b],"latin1_swedish_ci")."'";
+						$fn.= " OR fenns.fenn = '".$request['fenns[]'][$b]."'";
 					}
 				}
 			}
