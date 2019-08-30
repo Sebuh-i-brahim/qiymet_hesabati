@@ -55,7 +55,7 @@ if (!isset($_SESSION['sagird'])){
 		<div class="container">
 			<div class="formQeyd">
 				<h3 style="text-align: center">Qiymetlendirme</h3>
-				<a href="back.php?geri=logout" class="btn btn-primary sag">Geri Qayit</a>
+				
 				<?php
 
 					if(isset($_REQUEST['errName'])){
@@ -134,7 +134,8 @@ if (!isset($_SESSION['sagird'])){
 					</form>
 
 				</div>
-				<form method='post' action='back.php' id='qiymet' class="<?php if(!isset($_SESSION['tarix'])){echo("gorunus");}?>">
+				<form method='post' action='back.php' id='qiymet' class="<?php if(!isset($_SESSION['tarix'])){
+					echo("gorunus");} if(isset($_SESSION['tarix']) && $_SESSION['tarix'] == ""){echo("gorunus");}?>">
 					<button type='submit' class='btn btn-primary btn-sm sag'>Qeyd Elə</button>
 					<input type='hidden' name='_method' value='PUT'/>
 				</form>
@@ -144,7 +145,7 @@ if (!isset($_SESSION['sagird'])){
 						<tbody>
 							<?php
 
-								if (isset($_SESSION['tarix'])) {
+								if (isset($_SESSION['tarix']) && $_SESSION['tarix'] != "") {
 									$tbl = "<tr><th>Sagird</th><th>Fənn</th>";
 									for($c=0; $c < count($_SESSION['table']);$c++){
 										
@@ -177,3 +178,10 @@ if (!isset($_SESSION['sagird'])){
 		</script>
 	</body>
 </html>
+
+<?php
+
+if (isset($_SESSION['tarix'])) {
+	$_SESSION['tarix'] = "";
+}
+?>
