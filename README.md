@@ -13,8 +13,12 @@ class YeniSQL
 
 	private $password = "";
 
-	private $db = "jeremi"; 
+	private $db = "jeremi"; // sadece ad daxil edin qurulmasina gerek yoxdur...
 
 ...
+
   
+ Fenler fenn.json faylendadi
+ 
+ Basqa fenn elave etmek ucun fenn.json faylna elave edin...
   
