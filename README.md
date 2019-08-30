@@ -4,8 +4,6 @@ Database qurlasdirilmasi
 
 database.php faylinda :
 
-<?php
-
 class YeniSQL 
 {
 
@@ -16,5 +14,7 @@ class YeniSQL
 	private $password = "";
 
 	private $db = "jeremi"; 
+
+...
   
   
