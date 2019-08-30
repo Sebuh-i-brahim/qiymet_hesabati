@@ -2,7 +2,9 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
+if (!isset($_SESSION['sagird'])){
+	header("Location: back.php?page=qiymet");
+}
 ?>
 
 <!DOCTYPE html>
@@ -26,16 +28,43 @@ if (session_status() == PHP_SESSION_NONE) {
 		  	-moz-transition: all .5s ease;
 			transition: all .5s ease;
 		}
+		table {
+		    table-layout: fixed;
+		}
+
+		tbody {
+		    display: block;
+		    overflow: scroll;
+		}
 	</style>
 	<body style="font-family: 'Nunito', sans-serif;">
 		<div class="jumbotron" style="width: 100% !important; text-align: center;">
 			<h2 style="width: auto;">Şagirdlərin Qiymətləndirilməsi</h2>
 		</div>
+		<div class="navbar bg-light ml-auto mr-auto" style="width: 60%">
+			<div class="nav-item ml-auto mr-3">
+				<a href="back.php?page=index">Qeydiyyat</a>
+			</div>
+			<div class="nav-item mr-3 ml-3">
+				<a href="back.php?page=qiymet">Qiymetlendirme</a>
+			</div>
+			<div class="nav-item mr-auto ml-3 mr-auto">
+				<a href="back.php?page=four">Jurnal</a>
+			</div>
+		</div>
 		<div class="container">
 			<div class="formQeyd">
 				<h3 style="text-align: center">Qiymetlendirme</h3>
+				<a href="back.php?geri=logout" class="btn btn-primary sag">Geri Qayit</a>
+				<?php
+
+					if(isset($_REQUEST['errName'])){
+						echo "<ul><li>".$_REQUEST['errName']."</li></ul>";
+					}
+
+				?>
 				<div class="row">
-					<div class="col-md-4">
+					<div class="col-md-3">
 						<div class="m-3">
 							<form action="back.php" method="get" id="sagirdForm">
 								<select class="" id="sagirdSec" name="sagird">
@@ -45,18 +74,18 @@ if (session_status() == PHP_SESSION_NONE) {
 											if (isset($_SESSION['sg_id'])) {
 												$id = $_SESSION['sg_id'];
 												foreach ($_SESSION['sagird'] as $sagird) {
-													if ($sagird['id']==$id) {
-														echo "<option value='".$sagird['id']."' selected>".$sagird['name']."</option>";
-														$abc = $sagird['name'];
+													if ($sagird['user_id']==$id) {
+														echo "<option value='".$sagird['user_id']."' selected>".$sagird['name']."</option>";
+														$abc = $sagird['name']; $user_id = $sagird['user_id'];
 													}
 													else{
-														echo "<option value='".$sagird['id']."'>".$sagird['name']."</option>";
+														echo "<option value='".$sagird['user_id']."'>".$sagird['name']."</option>";
 													}
 												}
 											}
 											else{
 												foreach ($_SESSION['sagird'] as $sagird) {
-													echo "<option value='".$sagird['id']."'>".$sagird['name']."</option>";
+													echo "<option value='".$sagird['user_id']."'>".$sagird['name']."</option>";
 												}
 											}
 										}
@@ -66,78 +95,79 @@ if (session_status() == PHP_SESSION_NONE) {
 						</div>
 					</div>
 					<form action="back.php" method="get">
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="m-3">
 								<select class="" name="fenn">
 									<option value="" disabled selected>Fənn Seç</option>
 									<?php
+										$qala = "";
 										if (isset($_SESSION['fenn'])) {
 											if (isset($_SESSION['tarix']['fenn'])) {
 												$id = $_SESSION['tarix']['fenn'];
 												foreach ($_SESSION['fenn'] as $fenn) {
-													if ($fenn['id']==$id) {
-														echo "<option value='".$fenn['id']."' selected>".$fenn['name']."</option>";
-														$qala = $fenn['name'];
+													if ($fenn['fenn_id']==$id) {
+														echo "<option value='".$fenn['fenn_id']."' selected>".$fenn['fenn']."</option>";
+														$qala = $fenn['fenn'];
 													}
 													else{
-														echo "<option value='".$fenn['id']."'>".$fenn['name']."</option>";
+														echo "<option value='".$fenn['fenn_id']."'>".$fenn['fenn']."</option>";
 													}
 												}
 											}else{
 												foreach ($_SESSION['fenn'] as $fenn) {
-													echo "<option value='".$fenn['id']."'>".$fenn['fenn']."</option>";
+													echo "<option value='".$fenn['fenn_id']."'>".$fenn['fenn']."</option>";
 												}
 											}
 										}
 									?>
-
+									<input type="hidden" name="user_id" value="<?php echo($user_id);?>">
 								</select>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="m-3">
-								<input type="date" name="tarix1">
-								<input type="date" name="tarix2">
+								<input type="date" name="tarix1" value="">
+								<input type="date" name="tarix2" value="">
 							</div>
 						</div>
-						<button type="submit" class="btn btn-primary">Axtar</button>
+						<button type="submit" class="btn btn-primary sol">Axtar</button>
 					</form>
+
 				</div>
-				<table class="table">
-					<?php
+				<form method='post' action='back.php' id='qiymet' class="<?php if(!isset($_SESSION['tarix'])){echo("gorunus");}?>">
+					<button type='submit' class='btn btn-primary btn-sm sag'>Qeyd Elə</button>
+					<input type='hidden' name='_method' value='PUT'/>
+				</form>
+				<div>
+					
+					<table class="table <?php if(!isset($_SESSION['tarix'])){echo("gorunus");}?>">
+						<tbody>
+							<?php
 
-						if (isset($_SESSION['tarix'])) {
-							$tbl = "<tr><th>Sagird</th><th>Fənn</th>";
-							$i = 0;
-							$qiymet = [];
-							$td_id = [];
-							foreach ($_SESSION['table']['create_date'] as $vaxt) {
-								$tbl .= "<th>".$vaxt."</th>";
-							}
-							foreach($_SESSION['table']['qiymet'] as $qiy){
-								if($qiy === null){
-									$qiymet[] = "";
-								}else{
-									$qiymet[] = $qiy;
+								if (isset($_SESSION['tarix'])) {
+									$tbl = "<tr><th>Sagird</th><th>Fənn</th>";
+									for($c=0; $c < count($_SESSION['table']);$c++){
+										
+										$tbl .= "<th>".$_SESSION['table'][$c]['create_date']."</th>";
+	
+									}
+								
+									$tbl .= "</tr>";
+									$tbl .= "<tr><td>".$abc."</td><td>".$qala;
+
+									for($d=0; $d < count($_SESSION['table']);$d++){
+										$tbl .="<td><input form='qiymet' type='number' name='".$_SESSION['table'][$d]['qiymet_id']."' value ='".$_SESSION['table'][$d]['qiymet']."'></td>";
+									}
+									$tbl .= "</tr>";
+									echo $tbl;	
 								}
-								$i++;
-							}
-							foreach($_SESSION['table']['id'] as $t_id){
-								$td_id[] = $t_id;
-							}
-							$tbl .= "</tr>";
-							$tbl .= "<tr><td>".$abc."</td><td>".$qala;
-							for ($b=0; $b <= $i; $b++) { 
-								$tbl .="<td><input name='".$td_id[$b]."' value ='".$qiymet[$b]."'></td>";
-							}
-							$tbl .= "</tr>";
-						}
-
-					?>
-				</table>
+								
+							?>
+						</tbody>
+					</table>
+				</div>
 			</div>	
 		</div>
-
 		<script type="text/javascript">
 			$(document).ready(function(){
 				$("#sagirdSec").on('change', function(){
@@ -145,6 +175,11 @@ if (session_status() == PHP_SESSION_NONE) {
 				})
 			})
 		</script>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.7.6/js/mdb.min.js"></script>
 	</body>
 </html>
+<?php
+if (isset($_SESSION['table'])) {
+	session_destroy();
+}
+
+?>

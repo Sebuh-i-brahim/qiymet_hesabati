@@ -74,9 +74,47 @@ class Validate
 		}
 		return $data;
 	}
-	public function qiymet()
-	{
-		
+	static public function qiymet($request)
+	{	$i=0;
+		$data['id']=[];
+		$data['qiymet']=[];
+		foreach ($request as $key => $value) {
+			$error="";
+
+			
+
+			if(count($request)>2){
+				if($key != "_method"){
+					
+					$data['id'][$i] = $key;
+
+					if(empty($value) or $value >=2 or $value <= 5 && is_int($value) === true){
+						$data['qiymet'][$i] = $value;
+					}
+					else{
+						$error = "Qiymət bos vəya 2 - 5 arasi ve tam ədəd ola bilər";
+					}
+				}
+			}else{
+				if($key != "_method"){
+					$qiymet->qiymet_id = $key;
+					
+					if($value==0 or $value >=2 or $value <= 5 && is_int($value) === true){
+						$qiymet->qiymet_val = $value;
+					}
+					else{
+						$error = "Qiymət bos vəya 2 - 5 arasi ve tam ədəd ola bilər";
+					}
+				}
+			}
+			if ($error != "") {
+				header("Location: qiymet.php?errName=".$error);
+				die();
+			}
+
+		}
+
+		return $request;
 	}
 }
 

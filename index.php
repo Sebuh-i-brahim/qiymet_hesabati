@@ -2,7 +2,6 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -29,7 +28,18 @@ if (session_status() == PHP_SESSION_NONE) {
 	</style>
 	<body style="font-family: 'Nunito', sans-serif;">
 		<div class="jumbotron" style="width: 100% !important; text-align: center;">
-			<h2 style="width: auto;">Şagirdlərin Qiymətləndirilməsi</h2>
+			<h2 style="width: auto;">Şagirdlərin Qeydiyyati</h2>
+		</div>
+		<div class="navbar bg-light ml-auto mr-auto" style="width: 60%">
+			<div class="nav-item ml-auto mr-3">
+				<a href="back.php?page=index">Qeydiyyat</a>
+			</div>
+			<div class="nav-item mr-3 ml-3">
+				<a href="back.php?page=qiymet">Qiymetlendirme</a>
+			</div>
+			<div class="nav-item mr-auto ml-3 mr-auto">
+				<a href="back.php?page=four">Jurnal</a>
+			</div>
 		</div>
 		<div class="container">
 			<div class="formQeyd <?php ?>">	

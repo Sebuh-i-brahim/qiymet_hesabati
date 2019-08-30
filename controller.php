@@ -16,7 +16,28 @@ class Controller
 
 	static public function qiymet()
 	{
+		if (session_status() == PHP_SESSION_NONE) {
+		    session_start();
+		}
+		if (!isset($_SESSION['sagird'])) {
+			$db = new db();
+			$_SESSION['sagird'] = db::sagird();
+		}
 		header("Location: qiymet.php");
+		die();
+	}
+
+	static public function four()
+	{	
+		if (session_status() == PHP_SESSION_NONE) {
+		    session_start();
+		}
+		if (!isset($_SESSION['sagird'])) {
+			$db = new db();
+			$_SESSION['sagird'] = db::sagird();
+		}
+		
+		header("Location: four.php");
 		die();
 	}
 
@@ -43,14 +64,17 @@ class Controller
 	
 	static public function edit($request)
 	{
+		if (session_status() == PHP_SESSION_NONE) {
+		    session_start();
+		}
 
 		$db = new db();
 		
 		$table = db::edit($request);
 
-		$_SESSION['table'] = $table;
-
 		$_SESSION['tarix'] = $request;
+		
+		$_SESSION['table'] = $table;
 
 		self::qiymet();
 		
@@ -70,6 +94,47 @@ class Controller
 		$_SESSION['sg_id'] = $request['sagird'];
 
 		self::qiymet();
+	}
+
+	static public function update($request)
+	{	
+		
+		if (session_status() == PHP_SESSION_NONE) {
+		    session_start();
+		}
+
+		$Validate = new Validate();
+
+		$data = Validate::qiymet($request);
+
+		$db = new db();
+
+		db::update($data);
+
+		self::qiymet();
+	}
+
+	static public function jurnal($request)
+	{	
+		if (session_status() == PHP_SESSION_NONE) {
+		    session_start();
+		}
+		$db = new db();
+		
+		$fenns = db::jurnal($request);
+
+		$_SESSION['all'] = $fenns;
+
+		self::four();
+	}
+	static public function ajax($request)
+	{
+		$data = json_decode($request['ajax']);
+		$db = new db();
+
+		$ajax = db::ajax($data);
+
+		return $ajax;
 	}
 
 }

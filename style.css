@@ -29,6 +29,12 @@
   	-moz-transition: all .5s ease;
 	transition: all .5s ease;
 }
-.gorunus{
-	display: none !important;
+.sag{
+	float: right;
+	margin-right: 10px;
 }
+.sol{
+	float: left;
+	margin-left: 10px;
+}
+

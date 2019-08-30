@@ -1,18 +1,1 @@
-{
-	"fenn":[
-		"Fizika",
-		"Riyaziyyat",
-		"Kimya",
-		"Ingilis dili",
-		"Azərbaycan dili",
-		"Tarix",
-		"Rus dili",
-		"Biologiya",
-		"Ədəbiyyat",
-		"Coğrafiya",
-		"Musiqi",
-		"Cəbr",
-		"Həndəsə",
-		"Astronomiya"
-	]
-}
+{"fenn":["Fizika", "Riyaziyyat","Kimya","Ingilis dili","Azərbaycan dili","Tarix","Rus dili","Biologiya","Ədəbiyyat","Coğrafiya","Musiqi","Cəbr","Həndəsə","Astronomiya"]}
