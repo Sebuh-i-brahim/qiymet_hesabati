@@ -59,7 +59,7 @@ if (session_status() == PHP_SESSION_NONE) {
 						<form id="form1" method="post" action="back.php">
 							<div id="fennElave">
 								<div class="md-form">
-									<input type="text" name="name" class="form-control" id="adSoyad" onfocus="lfocus(this.id, this.id+'label');" onblur="lblur(this.id, this.id+'label');" required>
+									<input type="text" name="name" class="form-control" id="adSoyad" onfocus="lfocus(this.id, this.id+'label');" onblur="lblur(this.id, this.id+'label');" required autocomplete="off">
 									<label for="adSoyad" id="adSoyadlabel">Ad/Soyad/Ata adı:</label>
 								</div>
 								<div class="md-form">
