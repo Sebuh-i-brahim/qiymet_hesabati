@@ -10,7 +10,7 @@ class YeniSQL
 
 	private $password = "";
 
-	private $db = "Azer";
+	private $db = "jeremi";
 
 	private $conn;
 
