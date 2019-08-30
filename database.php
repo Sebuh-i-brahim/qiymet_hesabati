@@ -10,7 +10,7 @@ class YeniSQL
 
 	private $password = "";
 
-	private $db = "jeremi";
+	private $db = "Azer";
 
 	private $conn;
 
@@ -20,7 +20,7 @@ class YeniSQL
 		$table1 = "CREATE TABLE sagirdler (
 					user_id INT AUTO_INCREMENT PRIMARY KEY,
 					name VARCHAR(100) NOT NULL
-					) ENGINE=InnoDB;";
+					) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 		$table2 = "CREATE TABLE fenns (
 					fenn_id INT AUTO_INCREMENT PRIMARY KEY,
 					user_id INT,
@@ -28,7 +28,7 @@ class YeniSQL
 					CONSTRAINT fn_user FOREIGN KEY (user_id) 
  					REFERENCES sagirdler (user_id),
 					fenn VARCHAR(100) NOT NULL
-					) ENGINE=InnoDB;";
+					) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 		$table3 = "CREATE TABLE qiymets (
 					qiymet_id INT AUTO_INCREMENT PRIMARY KEY,
 					user_id INT,
@@ -41,7 +41,7 @@ class YeniSQL
  					REFERENCES sagirdler (user_id),
  					qiymet INT,
 					create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-					) ENGINE=InnoDB;";
+					) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
 		$conn = new mysqli($this->hostname, $this->username, $this->password);
 		if ($conn->connect_error) {
@@ -274,10 +274,10 @@ class db
 
 				for($i=0; $i<count($request['sagirdler']);$i++){
 					if ($i==0) {
-						$sg.= "sagirdler.user_id = '".$request['sagirdler'][$i]."'";
+						$sg.= "fenns.user_id = '".$request['sagirdler'][$i]."'";
 					}
 					else{
-						$sg.= " OR sagirler.user_id ='".$request['sagirdler'][$i]."'";
+						$sg.= " OR fenns.user_id ='".$request['sagirdler'][$i]."'";
 					}
 				}
 
@@ -296,10 +296,10 @@ class db
 
 				for($i=0; $i<count($request['sagirdler[]']);$i++){
 					if ($i==0) {
-						$sg.= "sagirdler.user_id = '".$request['sagirdler[]'][$i]."'";
+						$sg.= "fenns.user_id = '".$request['sagirdler[]'][$i]."'";
 					}
 					else{
-						$sg.= " OR sagirler.user_id ='".$request['sagirdler[]'][$i]."'";
+						$sg.= " OR fenns.user_id ='".$request['sagirdler[]'][$i]."'";
 					}
 				}
 
@@ -318,10 +318,10 @@ class db
 
 				for($i=0; $i<count($request['sagirdler[]']);$i++){
 					if ($i==0) {
-						$sg.= "sagirdler.user_id = '".$request['sagirdler[]'][$i]."'";
+						$sg.= "fenns.user_id = '".$request['sagirdler[]'][$i]."'";
 					}
 					else{
-						$sg.= " OR sagirler.user_id ='".$request['sagirdler[]'][$i]."'";
+						$sg.= " OR fenns.user_id ='".$request['sagirdler[]'][$i]."'";
 					}
 				}
 
@@ -340,19 +340,19 @@ class db
 
 				for($i=0; $i<count($request['sagirdler']);$i++){
 					if ($i==0) {
-						$sg.= "sagirdler.user_id = '".$request['sagirdler'][$i]."'";
+						$sg.= "fenns.user_id = '".$request['sagirdler'][$i]."'";
 					}
 					else{
-						$sg.= " OR sagirler.user_id ='".$request['sagirdler'][$i]."'";
+						$sg.= " OR fenns.user_id ='".$request['sagirdler'][$i]."'";
 					}
 				}
 
 				for ($b=0; $b < count($request['fenns[]']); $b++) { 
 					if ($b==0) {
-						$fn.= "fenns.fenn = '".$request['fenns[]'][$b]."'";
+						$fn.= "fenns.fenn = '".mb_convert_encoding ($request['fenns[]'][$b],"latin1_swedish_ci")."'";
 					}
 					else{
-						$fn.= " OR fenns.fenn = '".$request['fenns[]'][$b]."'";
+						$fn.= " OR fenns.fenn = '".mb_convert_encoding ($request['fenns[]'][$b],"latin1_swedish_ci")."'";
 					}
 				}
 			}
@@ -383,6 +383,10 @@ class db
 			WHERE ".$tr;
 		}
 		
+		echo $sql;
+		die();
+
+
 		$conn = new YeniSQL();
 
 		$data = $conn->all($sql);
