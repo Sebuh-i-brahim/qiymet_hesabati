@@ -10,7 +10,7 @@ class YeniSQL
 
 	private $password = "";
 
-	private $db = "Azer";
+	private $db = "menim_tablem";
 
 	private $conn;
 
@@ -383,8 +383,6 @@ class db
 			WHERE ".$tr;
 		}
 		
-		echo $sql;
-		die();
 
 
 		$conn = new YeniSQL();
