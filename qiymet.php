@@ -140,7 +140,7 @@ if (!isset($_SESSION['sagird'])){
 				</form>
 				<div>
 					
-					<table class="table <?php if(!isset($_SESSION['tarix'])){echo("gorunus");}?>">
+					<table class="table">
 						<tbody>
 							<?php
 
@@ -177,9 +177,3 @@ if (!isset($_SESSION['sagird'])){
 		</script>
 	</body>
 </html>
-<?php
-if (isset($_SESSION['table'])) {
-	session_destroy();
-}
-
-?>

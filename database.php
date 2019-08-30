@@ -185,11 +185,9 @@ class db
 		$conn = new YeniSQL();
 		
 		
-		if(!$conn->yoxla($sql)){
+		if($conn->yoxla($sql) === false){
 			self::qiymet($request);
 		}
-		
-
 		
 		return $conn->all($sql);
 	}
