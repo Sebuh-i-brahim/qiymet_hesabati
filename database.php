@@ -105,7 +105,7 @@ class YeniSQL
 		} 
 		
 		$result = $this->conn->query($sql);
-
+		
 		return $result;
 	}
 	public function server()
@@ -184,10 +184,13 @@ class db
 
 		$conn = new YeniSQL();
 		
+		$netice = $conn->yoxla($sql);
 		
-		if($conn->yoxla($sql) === false){
+		if($netice->num_rows == o){
 			self::qiymet($request);
 		}
+
+		
 		
 		return $conn->all($sql);
 	}
