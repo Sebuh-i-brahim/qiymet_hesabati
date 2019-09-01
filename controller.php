@@ -11,7 +11,7 @@ class Controller
 	static public function index()
 	{	
 		header("Location: index.php");
-		die();
+		exit();
 	}
 
 	static public function qiymet()
@@ -24,7 +24,7 @@ class Controller
 			$_SESSION['sagird'] = db::sagird();
 		}
 		header("Location: qiymet.php");
-		die();
+		exit();
 	}
 
 	static public function four()
@@ -32,13 +32,13 @@ class Controller
 		if (session_status() == PHP_SESSION_NONE) {
 		    session_start();
 		}
-		if (!isset($_SESSION['sagird'])) {
+		if (empty($_SESSION['sagird'])) {
 			$db = new db();
 			$_SESSION['sagird'] = db::sagird();
 		}
 		
 		header("Location: four.php");
-		die();
+		exit();
 	}
 
 	static public function save($request)

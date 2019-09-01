@@ -10,7 +10,7 @@ class YeniSQL
 
 	private $password = "";
 
-	private $db = "menim_tablem";
+	private $db = "jurnal";
 
 	private $conn;
 
@@ -74,6 +74,7 @@ class YeniSQL
 		} else {
 		    die($this->conn->error);
 		}
+		
 		return $last_id;
 	}
 
@@ -84,6 +85,7 @@ class YeniSQL
 		} else {
 		    die($this->conn->error);
 		}
+		
 	}
 	public function all($sql)
 	{
@@ -96,6 +98,7 @@ class YeniSQL
 		for($i=0; $i < $result->num_rows; $i++){
 			$netice[$i] = $result->fetch_assoc();
 		}
+		
 		return $netice;	
 	}
 	public function yoxla($sql)
@@ -114,7 +117,12 @@ class YeniSQL
 		if ($mysqli->connect_error) {
 		    die("Connection failed: " . $this->conn->connect_error);
 		}
+		
 		return $mysqli;
+	}
+	public function bagla()
+	{
+		$this->conn->close();
 	}
 	
 }
@@ -140,6 +148,7 @@ class db
 			}
 		}
 		$conn->yarat($sql2);
+		$conn->bagla();
 	}
 
 
@@ -148,6 +157,7 @@ class db
 		$sql = "SELECT * FROM sagirdler";
 		$conn = new YeniSQL();
 		$data = $conn->all($sql);
+		$conn->bagla();
 	}
 
 	static public function sagird()
@@ -155,6 +165,7 @@ class db
 		$sql = "SELECT * FROM sagirdler";
 		$conn = new YeniSQL();
 		return $conn->all($sql);
+		$conn->bagla();
 	}
 
 	static public function fenn($id)
@@ -162,6 +173,7 @@ class db
 		$sql = "SELECT * FROM fenns WHERE user_id = ".$id;
 		$conn = new YeniSQL();
 		return $conn->all($sql);
+		$conn->bagla();
 	}
 	static public function yoxlama($name)
 	{
@@ -175,6 +187,21 @@ class db
 		else{
 			return false;
 		}
+		$conn->bagla();
+	}
+	static public function fenn_yoxlama($user_id, $fenn_id)
+	{
+		$sql = "IF EXISTS (SELECT * FROM qiymets WHERE user_id = '".$user_id."' AND fenn_id = '".$fenn_id."'";
+		$conn = new YeniSQL();
+		$netice = $conn->yoxla($sql);
+
+		if ($netice == false){
+			return true;
+		}
+		else{
+			return false;
+		}
+		$conn->bagla();
 	}
 	
 	static public function edit($request)
@@ -186,21 +213,17 @@ class db
 		
 		$netice = $conn->yoxla($sql);
 		
-		if($netice->num_rows == o){
+		if($netice->num_rows == 0){
 			self::qiymet($request);
 		}
-
-		
-		
 		return $conn->all($sql);
+		$conn->bagla();
 	}
 
 	static public function update($data)
 	{
+
 		$conn = new YeniSQL();
-
-
-		
 		foreach ($data as $key => $value) {
 			if($key!="_method"){
 				if($value != ""){
@@ -209,10 +232,10 @@ class db
 			}
 		}
 		
+		$conn->bagla();
 	}
 	static public function qiymet($request)
 	{
-		$conn = new YeniSQL();
 
 		$a = date($request['tarix1']);
 
@@ -225,18 +248,19 @@ class db
 		if ($ferq > 60) {
 			$error = "Intervalin muddeti 60 gunden cox ola bilmez";
 			header("Location: qiymet.php? errName=".$error);
-			die();
+			exit();
 		}
-		
+		$conn = new YeniSQL();
 		for ($i=1; $i < $ferq; $i++) { 
 			$date = date("Y-m-d H:i:s", strtotime("+".$i." day", strtotime($a)));
 			$sql = "INSERT INTO qiymets (user_id,fenn_id, create_date) VALUES ('".$request['user_id']."','".$request['fenn']."', '".$date."')";
 			$conn->yarat($sql);
 		}
+		$conn->bagla();
 	}
 	static public function jurnal($request)
 	{
-	
+		
 		$sg ="";
 		$fn ="";
 		$a = date($request['tarix1']);
@@ -249,7 +273,7 @@ class db
 		if ($ferq > 60) {
 			$error = "Intervalin muddeti 60 gunden cox ola bilmez";
 			header("Location: qiymet.php? errName=".$error);
-			die();
+			exit();
 		}
 	
 		if(empty($request['sagirdler'])){
@@ -261,136 +285,121 @@ class db
 		if(empty($request['tarix1'])){
 			$error = "Tarix1 bos ola bilmez";
 			header("Location: four.php? errName=".$error);
-			die();
+			exit();
 		}
 		if (empty($request['tarix2'])) {
 			$error = "Tarix2 bos ola bilmez";
 			header("Location: four.php? errName=".$error);
-			die();
+			exit();
 		}
 
 		$tr = "qiymets.create_date BETWEEN '".$request['tarix1']."' AND '".$request['tarix2']."'";
-		if(isset($request['sagirdler']) && isset($request['fenns'])){
-			if($request['sagirdler'] != "" && $request != ""){
+		
+		
+		if($request['sagirdler'] != "" && $request['fenns'] != ""){
 
-				for($i=0; $i<count($request['sagirdler']);$i++){
-					if ($i==0) {
-						$sg.= "fenns.user_id = '".$request['sagirdler'][$i]."'";
-					}
-					else{
-						$sg.= " OR fenns.user_id ='".$request['sagirdler'][$i]."'";
+			for($i=0; $i<count($request['sagirdler']);$i++){
+				if ($i==0) {
+					$sg.= "fenns.user_id = '".$request['sagirdler'][$i]."'";
+				}
+				else{
+					$sg.= " OR fenns.user_id ='".$request['sagirdler'][$i]."'";
+				}
+			}
+
+			for ($b=0; $b < count($request['fenns']); $b++) { 
+				$fn_id = explode(",", $request['fenns'][$b]);
+				if ($b==0) {
+					for ($u=0; $u < count($fn_id); $u++) { 
+						if ($u==0) {
+							$fn.= "fenns.fenn_id = '".$fn_id[$u]."'";
+						}
+						else{
+							$fn.= " OR fenns.fenn_id = '".$fn_id[$u]."'";
+						}
 					}
 				}
-
-				for ($b=0; $b < count($request['fenns']); $b++) { 
-					if ($b==0) {
-						$fn.= "fenns.fenn = '".$request['fenns'][$b]."'";
-					}
-					else{
-						$fn.= " OR fenns.fenn = '".$request['fenns'][$b]."'";
+				else{
+					for ($u=0; $u < count($fn_id); $u++) { 
+						
+						$fn.= " OR fenns.fenn_id = '".$fn_id[$u]."'";
+						
 					}
 				}
 			}
 		}
-		if(isset($request['sagirdler[]']) && isset($request['fenns[]'])){
-			if($request['sagirdler[]'] != "" && $request != ""){
+		elseif($request['sagirdler'] != "" && $request['fenns'] == ""){
 
-				for($i=0; $i<count($request['sagirdler[]']);$i++){
-					if ($i==0) {
-						$sg.= "fenns.user_id = '".$request['sagirdler[]'][$i]."'";
-					}
-					else{
-						$sg.= " OR fenns.user_id ='".$request['sagirdler[]'][$i]."'";
+			for($i=0; $i<count($request['sagirdler']);$i++){
+				if ($i==0) {
+					$sg.= "fenns.user_id = '".$request['sagirdler'][$i]."'";
+				}
+				else{
+					$sg.= " OR fenns.user_id ='".$request['sagirdler'][$i]."'";
+				}
+			}
+			$fn.= "";
+		}
+		elseif($request['sagirdler'] == "" && $request['sagirdler'] != ""){
+
+			$sg .= "";
+
+			for ($b=0; $b < count($request['fenns']); $b++) { 
+				$fn_id = explode(",", $request['fenns'][$b]);
+				if ($b==0) {
+					for ($u=0; $u < count($fn_id); $u++) { 
+						if ($u==0) {
+							$fn.= "fenns.fenn_id = '".$fn_id[$u]."'";
+						}
+						else{
+							$fn.= " OR fenns.fenn_id = '".$fn_id[$u]."'";
+						}
 					}
 				}
-
-				for ($b=0; $b < count($request['fenns[]']); $b++) { 
-					if ($b==0) {
-						$fn.= "fenns.fenn = '".$request['fenns[]'][$b]."'";
-					}
-					else{
-						$fn.= " OR fenns.fenn = '".$request['fenns[]'][$b]."'";
+				else{
+					for ($u=0; $u < count($fn_id); $u++) { 
+						
+						$fn.= " OR fenns.fenn_id = '".$fn_id[$u]."'";
+						
 					}
 				}
 			}
-		}
-		if(isset($request['sagirdler[]']) && isset($request['fenns'])){
-			if($request['sagirdler'] != "" && $request != ""){
-
-				for($i=0; $i<count($request['sagirdler[]']);$i++){
-					if ($i==0) {
-						$sg.= "fenns.user_id = '".$request['sagirdler[]'][$i]."'";
-					}
-					else{
-						$sg.= " OR fenns.user_id ='".$request['sagirdler[]'][$i]."'";
-					}
-				}
-
-				for ($b=0; $b < count($request['fenns']); $b++) { 
-					if ($b==0) {
-						$fn.= "fenns.fenn = '".$request['fenns'][$b]."'";
-					}
-					else{
-						$fn.= " OR fenns.fenn = '".$request['fenns'][$b]."'";
-					}
-				}
-			}
-		}
-		if(isset($request['sagirdler']) && isset($request['fenns[]'])){
-			if($request['sagirdler'] != "" && $request != ""){
-
-				for($i=0; $i<count($request['sagirdler']);$i++){
-					if ($i==0) {
-						$sg.= "fenns.user_id = '".$request['sagirdler'][$i]."'";
-					}
-					else{
-						$sg.= " OR fenns.user_id ='".$request['sagirdler'][$i]."'";
-					}
-				}
-
-				for ($b=0; $b < count($request['fenns[]']); $b++) { 
-					if ($b==0) {
-						$fn.= "fenns.fenn = '".$request['fenns[]'][$b]."'";
-					}
-					else{
-						$fn.= " OR fenns.fenn = '".$request['fenns[]'][$b]."'";
-					}
-				}
-			}
-		}
-		if($sg != "" && $fn != ""){
-			$sql = "SELECT *
-			FROM sagirdler
-			JOIN qiymets ON (qiymets.user_id = sagirdler.user_id)
-			JOIN fenns ON (fenns.user_id = sagirdler.user_id)
-			WHERE ".$sg." AND ".$fn." AND ".$tr;
-		}if($sg == "" && $fn != ""){
-			$sql = "SELECT *
-			FROM sagirdler
-			JOIN qiymets ON (qiymets.user_id = sagirdler.user_id)
-			JOIN fenns ON (fenns.user_id = sagirdler.user_id)
-			WHERE ".$fn." AND ".$tr;
-		}if($sg != "" && $fn == ""){
-			$sql = "SELECT *
-			FROM sagirdler
-			JOIN qiymets ON (qiymets.user_id = sagirdler.user_id)
-			JOIN fenns ON (fenns.user_id = sagirdler.user_id)
-			WHERE ".$sg." AND ".$tr;
-		}if($sg == "" && $fn == ""){
-			$sql = "SELECT *
-			FROM sagirdler
-			JOIN qiymets ON (qiymets.user_id = sagirdler.user_id)
-			JOIN fenns ON (fenns.user_id = sagirdler.user_id)
-			WHERE ".$tr;
 		}
 		
-
-
+		if($sg != "" && $fn != ""){
+			$sql = "SELECT sagirdler.name, fenns.fenn, qiymets.qiymet, qiymets.create_date
+			FROM sagirdler
+			INNER JOIN qiymets ON (sagirdler.user_id = qiymets.user_id)
+			INNER JOIN fenns ON (qiymets.fenn_id = fenns.fenn_id)
+			WHERE (".$sg.") AND (".$fn.") AND (".$tr.") ORDER BY sagirdler.name ASC, qiymets.create_date ASC, fenns.fenn";
+		}if($sg == "" && $fn != ""){
+			$sql = "SELECT sagirdler.name, fenns.fenn, qiymets.qiymet, qiymets.create_date
+			FROM sagirdler
+			INNER JOIN qiymets ON (sagirdler.user_id = qiymets.user_id)
+			INNER JOIN fenns ON (qiymets.fenn_id = fenns.fenn_id)
+			WHERE (".$fn.") AND (".$tr.") ORDER BY sagirdler.name ASC, qiymets.create_date ASC, fenns.fenn";
+		}if($sg != "" && $fn == ""){
+			$sql = "SELECT sagirdler.name, fenns.fenn, qiymets.qiymet, qiymets.create_date
+			FROM sagirdler
+			INNER JOIN qiymets ON (sagirdler.user_id = qiymets.user_id)
+			INNER JOIN fenns ON (qiymets.fenn_id = fenns.fenn_id)
+			WHERE (".$sg.") AND (".$tr.") ORDER BY sagirdler.name ASC, qiymets.create_date ASC, fenns.fenn";
+		}if($sg == "" && $fn == ""){
+			$sql = "SELECT sagirdler.name, fenns.fenn, qiymets.qiymet, qiymets.create_date
+			FROM sagirdler
+			INNER JOIN qiymets ON (sagirdler.user_id = qiymets.user_id)
+			INNER JOIN fenns ON (qiymets.fenn_id = fenns.fenn_id)
+			WHERE ".$tr. " ORDER BY sagirdler.name ASC, qiymets.create_date ASC, fenns.fenn";
+		}
+		
+		
 		$conn = new YeniSQL();
 
 		$data = $conn->all($sql);
 
 		return $data;
+
+		$conn->bagla();
 	} 
 
 	static public function ajax($data)
@@ -399,7 +408,7 @@ class db
 		
 
 		if (is_array($data)) {
-			$sql = "SELECT fenn fenn_id FROM fenns WHERE user_id IN(";
+			$sql = "SELECT fenn, fenn_id FROM fenns WHERE user_id IN(";
 			for ($i=0; $i < count($data); $i++) { 
 				if($i == count($data) - 1){
 					$sql .= "'".$data[$i]."')"; 
@@ -409,17 +418,39 @@ class db
 				}
 			}
 		}else{
-			$sql = "SELECT fenn fenn_id FROM fenns WHERE user_id = '".$data."'";
+			$sql = "SELECT fenn, fenn_id FROM fenns WHERE user_id = '".$data."'";
 		}
 
 		$conn = new YeniSQL();
 
 		$data = $conn->all($sql);
 		
-		echo json_encode($data);
-		
+		$fenn = array_column($data, "fenn");
 
+		$fenn_id = array_column($data, "fenn_id");
+
+		$fenns = self::array_birlesdir($fenn, $fenn_id);
+
+		echo json_encode($fenns);
+
+		$conn->bagla();
+		
 	}
+	static public function array_birlesdir($keys, $values)
+	{
+	        $result = array();
+
+		    foreach ($keys as $i => $k) {
+		     $result[$k][] = $values[$i];
+		     }
+
+		    array_walk($result, function(&$v){
+		     $v = (count($v) == 1) ? array_pop($v): $v;
+		     });
+
+		    return $result;
+	}
+
 }
 
 

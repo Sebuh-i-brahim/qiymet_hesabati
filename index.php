@@ -42,20 +42,17 @@ if (session_status() == PHP_SESSION_NONE) {
 			</div>
 		</div>
 		<div class="container">
-			<div class="formQeyd <?php ?>">	
+			<div class="formQeyd">	
 				<div class="row">
 					<div class="col-md-8">
 						<h3 style="text-align: center">Şagirdlərin Qeydiyyatı</h3>
-						<ul>
-							<?php
-								if ($_REQUEST !== null) {
-									if(isset($_GET['errName'])){
-										echo $_GET['errName'];
-									}
-								}
-
-							?>
-						</ul>
+						<?php if(isset($_GET['errName'])):?>
+							<div class="alert alert-danger p-2">
+								<ul class="m-auto">
+									<?php echo $_GET['errName']; ?>
+								</ul>
+							</div>
+						<?php endif;?>
 						<form id="form1" method="post" action="back.php">
 							<div id="fennElave">
 								<div class="md-form">
@@ -63,16 +60,23 @@ if (session_status() == PHP_SESSION_NONE) {
 									<label for="adSoyad" id="adSoyadlabel">Ad/Soyad/Ata adı:</label>
 								</div>
 								<div class="md-form">
-									<input type="text" class="form-control" onfocus="lfocus(this.id, this.id+'label');" onblur="lblur(this.id, this.id+'label');" required name="fenn1" id="fenn1" onkeyup="yukle(this.id);" autocomplete="off">
+									<input type="text" class="form-control" onfocus="lfocus(this.id, this.id+'label');" onblur="lblur(this.id, this.id+'label');" required name="fenn1" id="fenn1" onkeyup="yukle(this.id,'tm'+this.id);" autocomplete="off">
 									<label for="fenn1" id="fenn1label">Fənn 1</label>
+									<div class="tamamlayici" id="tmfenn1" onclick="beraber('fenn1',this);"></div>
 								</div>
 							</div>
-						<button type="submit" class="btn btn-primary ml-auto" id="submit">Qeydiyyat</button>			
+
+							<button style="margin-top: 20px;" type="submit" class="btn btn-primary ml-auto" id="submit">Qeydiyyat</button>			
 						</form>
 						
 					</div>
-					<div class="col-md-3 ml-auto mt-auto">
-						<button id="add" class="btn btn-primary">Fənn Əlavə Et</button>
+					<div class="col-md-3 ml-auto mt-5">
+						<div class="alert alert-warning p-2" style="border-radius: 5px; text-align: center;">
+							<h6 style="text-align: center;">QEYD: Ad/Soyad/Ata adı hamısı doldurulmaldı misal: Azər Əliyev Mirzə</h6>
+						</div>
+						<div class="mt-auto">
+							<button id="add" class="btn btn-primary">Fənn Əlavə Et</button>
+						</div>
 					</div>
 					<input type="hidden" id="gizliFenn">
 				</div>
@@ -81,35 +85,41 @@ if (session_status() == PHP_SESSION_NONE) {
 		
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.7.6/js/mdb.min.js"></script>
 		<script type="text/javascript">
-			function lfocus(id, labelId){
+
+			function lfocus(id, labelId)
+			{
 				document.getElementById(labelId).classList.add('labelDesign');
 				document.getElementById(id).classList.add('benovse');
 			}
-			function lblur(id, labelId){
+			function lblur(id, labelId)
+			{
 				if(document.getElementById(id).value == ""){
 					document.getElementById(labelId).classList.remove('labelDesign');
 				}
 				document.getElementById(id).classList.remove('benovse');
 			}
-			$(document).ready(function(){	
+			$(document).ready(function()
+			{	
 				$("#add").on("click", function(){
 					var count = $("input").length - 1;
-					var text = '<div class="md-form">'+ '<input type="text" class="form-control" onfocus="lfocus(this.id, this.id+\'label\');" onkeyup="yukle(this.id);" onblur="lblur(this.id, this.id+\'label\');" required name="fenn'+ count + '" id="fenn'+count+'" autocomplete="off"><label for="fenn'+count+'" id="fenn'+count+'label">Fənn '+count+'</label></div>';
-					$("#fennElave").append(text)
+					var text = '<div class="md-form">'+ '<input type="text" class="form-control" onfocus="lfocus(this.id, this.id+\'label\');" onkeyup="yukle(this.id,\'tm\'+this.id);" onblur="lblur(this.id, this.id+\'label\');" required name="fenn'+count+'" id="fenn'+count+'" autocomplete="off"><label for="fenn'+count+'" id="fenn'+count+'label">Fənn '+count+'</label><div class="tamamlayici" id="tmfenn'+count+'" onclick="beraber(\'fenn'+count+'\',this);"></div></div>';
+					$("#fennElave").append(text);
 				});
-
 			});
-			function yukle(id) {
+			function yukle(id, tm_id) 
+			{
+
 				var xhttp = new XMLHttpRequest();
 				xhttp.onreadystatechange = function() {
 					if (this.readyState == 4 && this.status == 200) {
-						axtar(this.response, id);
+						axtar(this.response, id, tm_id);
 					}
 				};
 				xhttp.open("GET", "fenn.json", true);
 				xhttp.send();
 			}
-			function axtar(data, id){
+			function axtar(data, id, tm_id)
+			{
 				data2 = JSON.parse(data);
 				var valu = document.getElementById(id).value.toLowerCase();
 				var a = 0;
@@ -122,9 +132,34 @@ if (session_status() == PHP_SESSION_NONE) {
 					}
 				}
 				if(b.length == 1){
-				 	document.getElementById(id).value = data2['fenn'][c];	
+					$(document).ready(function(){
+						$("#"+tm_id).show();
+					});
+				 	document.getElementById(tm_id).innerHTML = data2['fenn'][c];	
 				}
 			}
+			function on_blur(id)
+			{
+				$(document).ready(function(){
+					$("#"+id).hide();
+				});
+			}
+			function beraber(id,element)
+			{
+				document.getElementById(id).value = element.innerHTML;
+				element.style.display = "none";
+			}
+			
+			window.onclick = function(event) 
+			{
+				var tooltip = document.querySelectorAll('.tamamlayici');
+			  	for (var v = 0; v < tooltip.length; v++) {
+			  		if (event.target != tooltip[v]) {
+				    	tooltip[v].style.display = "none";
+				  	}
+			  	}
+			}
+			
 		</script>
 	</body>
 </html>

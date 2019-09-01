@@ -37,4 +37,35 @@
 	float: left;
 	margin-left: 10px;
 }
+.gorunus{
+	display: none !important;
+	-webkit-transition: all .5s ease;
+  	-moz-transition: all .5s ease;
+	transition: all .5s ease;
+}
 
+.effekt{
+	-webkit-transition: all .5s ease;
+  	-moz-transition: all .5s ease;
+	transition: all .5s ease;
+}
+.tamamlayici{
+	position: absolute;
+	top: 100%;
+	z-index: 5;
+	display: none;
+	max-width: 100%;
+	padding: 0.25rem 0.5rem;
+	margin-top: .1rem;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	color: #fff;
+	background-color: rgba(111, 66, 193, 0.9);
+	border-radius: 0.25rem;
+	-webkit-transition: all .5s ease;
+  	-moz-transition: all .5s ease;
+	transition: all .5s ease;
+}
+.tamamlayici:hover{
+	cursor: pointer;
+}

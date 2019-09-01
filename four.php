@@ -7,9 +7,19 @@ $fennJ = file_get_contents("fenn.json");
 
 if(empty($_SESSION['sagird'])){
 	header("Location: back.php?page=four");
+	exit();
 }
 
-
+if (isset($_SESSION['all'])) {
+	$table = array_filter($_SESSION['all']);
+	$tbltarix1 = array_column($table, "create_date");
+	$tbltarix2 = array_unique($tbltarix1);
+	$fenns1 = array_column($table, "fenn");
+	$fenns2 = array_unique($fenns1);
+	$tblqiymet = array_column($table, "qiymet");
+	$tblname1 = array_column($table, "name");
+	$tblname2 = array_unique($tblname1);
+}
 
 ?>
 <!DOCTYPE html>
@@ -27,20 +37,28 @@ if(empty($_SESSION['sagird'])){
 	<link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.7.6/css/mdb.min.css"/>
 	<style type="text/css">
-		.gorunus{
-			display: none !important;
-			-webkit-transition: all .5s ease;
-			-moz-transition: all .5s ease;
-			transition: all .5s ease;
-		}
 		table {
-		table-layout: fixed;
+		    table-layout: fixed !important;
+		    border: 1px solid;
 		}
+
 		tbody {
-		display: block;
-		overflow: scroll;
+		    display: block !important;
+		    overflow: auto;
+		}
+
+		tr,td{
+			border: 1px solid;
+			text-align: center;
+		}
+		th,td{
+			min-width: 100px;
+		}
+		.sagirdTd{
+			min-width: 200px;
 		}
 	</style>
+	
 	<body style="font-family: 'Nunito', sans-serif;">
 		<div class="jumbotron" style="width: 100% !important; text-align: center;">
 			<h2 style="width: auto;">Jurnal</h2>
@@ -69,79 +87,105 @@ if(empty($_SESSION['sagird'])){
 					}
 				?>
 				<form action="back.php" method="get">
-				<div class="row" style="width: 100% !important;">
-					
+					<div class="row mt-3" style="width: 100% !important;">
 						<div class="col-md">
-							<div class="m-3">
-								<select class="custom-select" id="Sec" name="sagirdler[]" multiple>
-									<option value="" disabled selected>Şagird Seç</option>
-									<?php
-										foreach ($_SESSION['sagird'] as $sagird) {
-											echo "<option value='".$sagird['user_id']."'>".$sagird['name']."</option>";
-										}
-									?>
-								</select>
-								
-							</div>
+							<select class="custom-select" id="Sec" name="sagirdler[]" multiple>
+								<option value="" disabled selected>Şagird Seç</option>
+								<?php
+									foreach ($_SESSION['sagird'] as $sagird) {
+										echo "<option value='".$sagird['user_id']."'>".$sagird['name']."</option>";
+									}
+								?>
+							</select>
 						</div>
-						
 						<div class="col-md">
-							<div class="m-3">
+							<div class="form-group">
 								<select class="custom-select" name="fenns[]" multiple id="fenns">
 									<option value="" disabled selected>Fənn Seç</option>
-									<?php 
-
-									?>
-									
 								</select>
 							</div>
 						</div>
 						<div class="col-md">
-							<div class="m-3">
-								<input type="date" name="tarix1" value="">
-								<input type="date" name="tarix2" value="">
+							<div class="md-form mt-3">
+									<input type="date" name="tarix1" value="" id="tarix1" class="form-control">
+									<label for="tarix1">Başlanğıc Tarix</label>
 							</div>
 						</div>
-						<div class="col-md"><button type="submit" class="btn btn-primary sol">Axtar</button></div>
-					
-				</div>
+						<div class="col-md">
+							<div class="m-3 md-form">
+								<input type="date" name="tarix2" value="" id="tarix2" class="form-control">
+								<label for="tarix2">Bitmə tarixi</label>
+							</div>
+							<div class="ml-auto">
+								<button type="submit" class="btn btn-primary sag">Axtar</button>
+							</div>
+						</div>					
+					</div>
 				</form>
-				<?php
-				if (isset($_SESSION['all']) && !empty($_SESSION['all'])) {
-					echo "<ul><li><h4>Netice Asagidadi</h4></li></ul>";
-				}
-
-				?>
 				<div>
-					<table class="table">
-						<tbody>
-							<?php
-								if (isset($_SESSION['all'])) {
-										$tbl = "<tr><th>Sagird</th>";
-										for($c=0; $c < count($_SESSION['all']);$c++){
-											if(is_array($_SESSION['all'][$c]['create_date'])){
-												for ($e=0; $e < $_SESSION['all'][$c]['create_date']; $e++) { 
-													$tbl .= "<th>".$_SESSION['all'][$c]['create_date']['$e']."</th>";
-												}
-											}
-											else{
-												$tbl .= "<th>".$_SESSION['all'][$c]['create_date']."</th>";
-											}
-							
-										}
-								
-									$tbl .= "</tr>";
-								// 	$tbl .= "<tr><td>".$_SESSION['all'][0]['name']."</td>";
-								// 	for($d=0; $d < count($_SESSION['all']);$d++){
-								// 			$tbl .="";
-								// 	}
-								// $tbl .= "</tr>";
-									echo $tbl;
-								}
-					
-							?>
-						</tbody>
-					</table>
+					<?php if (isset($table)): ?>
+						<table class="table table-bordered table-primary table-striped table-hover">
+							<thead >
+								<h3 style="text-align: center;">Jurnal</h3>
+							</thead>
+						  	<tbody style="width: 100%">
+						  		<tr>
+						      		<th>Şagirdlər</th>
+					      			<?php for ($k=0; $k < count($table); $k++):  ?>
+					      				<?php if(isset($tbltarix2[$k])): ?>
+
+					      					<th colspan="<?php echo count($fenns2);?>"><?php echo date("m-d-Y", strtotime($tbltarix2[$k])); ?></th>
+
+					      				<?php endif;?>
+					      			<?php endfor;?>
+					      			<th colspan="<?php echo count($fenns2);?>"><?php echo "ortalama";?></th>	
+						    	</tr>
+						    	<tr>
+						    		<td></td>
+						    		<?php for ($h=0; $h < (count($tbltarix2)+1)*count($fenns2); $h++ ): ?>
+						    			<td>
+
+						    				<?php 
+
+						    					 echo $fenns1[$h];
+
+						    				?> 
+
+						    			</td>
+						    		<?php endfor;?>	
+
+						    	</tr>
+								<?php for ($m = 0; $m < count($table); $m++): ?>
+
+									<?php if (isset($tblname2[$m])): ?>
+								  		<tr>
+								  			<td class="sagirdTd"><?php echo $tblname2[$m]; ?></td>
+
+											<?php for ($t=0; $t < count($table); $t++): ?>
+										    	<?php if ($tblname1[$t]==$tblname2[$m]): ?>
+										      		<td><?php echo $tblqiymet[$t]; ?></td>
+										      		
+										   		<?php endif;?>
+											<?php endfor; ?>
+											<?php for($f=0; $f< count($fenns2);$f++):?>
+												<?php  $cem = 0; for ($k=$f; $k < count($table); $k +=count($fenns2)): ?>
+										    		<?php if ($tblname1[$k]==$tblname2[$m]): ?>
+										      			
+										      			<?php $cem += $tblqiymet[$k]; ?>
+										 
+										   			<?php endif;?>
+												<?php endfor; ?>
+												<td><?php echo $cem * count($fenns2)*count($tblname2)/count($tblqiymet); ?></td>
+											<?php endfor; ?>
+											
+										</tr>
+
+									<?php endif;?>
+
+								<?php endfor;?>		
+						  	</tbody>
+						</table>
+					<?php endif; ?>
 				</div>
 			</div>
 		</div>
@@ -158,7 +202,8 @@ if(empty($_SESSION['sagird'])){
 	    	
 		}
 
-	document.getElementById('Sec').addEventListener('change', function(){
+	document.getElementById('Sec').addEventListener('change', function()
+	{
 		if (this.value === null) {
 			var ason = '<?php echo $fennJ;?>';
 			
@@ -171,39 +216,52 @@ if(empty($_SESSION['sagird'])){
 		}
 		val = abc();
 		val2 = JSON.stringify(val);
-
-		
-		
-		var sel, del, zel = [], y,i, gel = [];
+		// arrayg = new Object();
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 		    if (this.readyState == 4 && this.status == 200) {
-		    	del = JSON.parse(this.response);
-		    	i=0;
-		    	y=0;
-		    	if(val.length > 1){
+		    	var arrayg = JSON.parse(this.response);
+		    	
+		    	var key = Object.keys(arrayg);
+
+
+		    	
+		    	if (val.length > 1) {
 		    		
-		    		for(;i<del.length; i++){
-			    		zel.push(del[i]['fenn_id']);
+		    		var don = '<option value="" disabled selected>Fənn Seç</option>';
+		    		for(x in arrayg){
+		    		
+		    			if( Object.prototype.toString.call( arrayg[x] ) === '[object Array]' ) {				  	 
+						  	if (arrayg[x].length == val.length) {
+						  		don += "<option value ='"+arrayg[x]+"'>"+x+"</option>";
+						  	}
+						  	else{
+						  		don +="";
+						  	}
+						}
+		    			
 		    		}
-		    		gel = find_duplicate_in_array(zel);
-		    		for(;y<gel.length;y++){
-		    			sel += "<option value='"+gel[y]+"'>"+gel[y]+"</option>";
-		    		}
+		    		document.getElementById('fenns').innerHTML = don;
 		    	}
 		    	else{
-		    		for(;i<del.length; i++){
-		    			sel += "<option value='"+del[i]['fenn_id']+"'>"+del[i]['fenn_id']+"</option>";
+		    		var son;
+		    		son ='<option value="" disabled selected>Fənn Seç</option>';
+		    		for (var i = 0; i < key.length; i++) {
+		    			son += "<option value='"+arrayg[key[i]]+"'>"+key[i]+"</option>";
 		    		}
+		    		//console.log("String val");
+		    		document.getElementById('fenns').innerHTML = son;
 		    	}
 		    	
-		    	document.getElementById('fenns').innerHTML = sel;		    	
+		    	
+		    			    	
 		    }
 		};
 		xhttp.open("GET", "back.php?ajax="+val2, true);
 		xhttp.send();
 	});
-	function abc() {
+	function abc() 
+	{
 	    var select1 = document.getElementById("Sec");
 	    var selected1 = [];
 	    for (var i = 0; i < select1.length; i++) {
@@ -214,7 +272,8 @@ if(empty($_SESSION['sagird'])){
 	    }
 	    return selected1;
 	}
-	function find_duplicate_in_array(arra1) {
+	function find_duplicate_in_array(arra1) 
+	{
         var object = {};
         var result = [];
 
@@ -233,15 +292,23 @@ if(empty($_SESSION['sagird'])){
         return result;
 
     }
+
+	Date.prototype.toDateInputValue = (function() 
+	{
+	    var local = new Date(this);
+	    local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+	    return local.toJSON().slice(0,10);
+	});
+	$(document).ready(function(){
+		$('#tarix1').val(new Date().toDateInputValue());
+		$('#tarix2').val(new Date().toDateInputValue());
+	});
+	    
 </script>
 
 </body>
 </html>
 <?php
-if (isset($_SESSION['all']) && !empty($_SESSION['all'])) {
-	var_dump($_SESSION['all']);
-}
-
 if(isset($_SESSION['all']) ){
 	session_destroy();
 }

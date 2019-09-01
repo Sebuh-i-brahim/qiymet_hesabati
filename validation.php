@@ -30,7 +30,7 @@ class Validate
 			}else{
 				$error = "<li>Bu addan istifade olunub</li>";
 				header("Location: index.php?errName=".$error);
-				die();
+				exit();
 			}
 
 		}
@@ -45,7 +45,7 @@ class Validate
 				$error.= "<li>Ata adi minimum 3 hərfdən ibarət ola bilər</li>";
 			}
 			header("Location: index.php?errName=".$error);
-			die();
+			exit();
 		}
 	}
 	static public function fenn($request)
@@ -56,6 +56,7 @@ class Validate
 		$errorfn = "";
 		$fullfenn = [];
 		$data = [];
+		$say=[];
 		for ($i=1; $i < count($request); $i++) {
 			$data[$i]=""; 
 			$fullfenn[$i] = htmlspecialchars($request["fenn".$i]);
@@ -67,15 +68,24 @@ class Validate
 			if ($data[$i] == "") {
 				$errorfn .= "<li>Fənn ".$i." düzgün doldurulmayıb</li>";
 			}
+			for ($j=1; $j < count($request); $j++) { 
+				if ($request["fenn".$i] == $request["fenn".$j]) {
+					$say[$i.$j] = "+";	
+				}
+			}
+		}
+		if (count($say) != count($request)-1) {
+			$errorfn.="<li>Eyni fənni yalniz bir dəfə daxil etmək olar</li>";
 		}
 		if ($errorfn != "") {
 			header("Location: index.php?errName=".$errorfn);
-			die();
+			exit();
 		}
 		return $data;
 	}
 	static public function qiymet($request)
-	{	$i=0;
+	{	
+		$i=0;
 		$data['id']=[];
 		$data['qiymet']=[];
 		foreach ($request as $key => $value) {
@@ -109,7 +119,7 @@ class Validate
 			}
 			if ($error != "") {
 				header("Location: qiymet.php?errName=".$error);
-				die();
+				exit();
 			}
 
 		}
