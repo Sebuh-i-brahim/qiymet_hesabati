@@ -77,15 +77,20 @@ if (isset($_SESSION['all'])) {
 		<div class="container">
 			<div class="formQeyd">
 				<h3 style="text-align: center">Siyahi</h3>
-				<?php
-					if(isset($_REQUEST['errName'])){
-						echo "<ul><li>".$_REQUEST['errName']."</li></ul>";
-					}
-					if(isset($_SESSION['all']) && empty($_SESSION['all']))
-					{
-						echo "<ul><li>Axtarışa uyğun neticə tapılmadı</li></ul>";
-					}
-				?>
+				<?php if(isset($_GET['errName'])):?>
+					<div class="alert alert-danger p-2">
+						<ul class="m-auto">
+							<?php echo $_GET['errName']; ?>
+						</ul>
+					</div>
+				<?php endif;?>
+				<?php if(isset($tblqiymet) && empty($tblqiymet)):?>
+					<div class="alert alert-danger p-2">
+						<ul class="m-auto">
+							<?php echo "Axtarışa uyğun neticə tapılmadı"; ?>
+						</ul>
+					</div>
+				<?php endif;?>
 				<form action="back.php" method="get">
 					<div class="row mt-3" style="width: 100% !important;">
 						<div class="col-md">
@@ -123,7 +128,7 @@ if (isset($_SESSION['all'])) {
 					</div>
 				</form>
 				<div>
-					<?php if (isset($table)): ?>
+					<?php if (isset($tblqiymet) && !empty($tblqiymet)): ?>
 						<table class="table table-bordered table-primary table-striped table-hover">
 							<thead >
 								<h3 style="text-align: center;">Jurnal</h3>
@@ -142,7 +147,7 @@ if (isset($_SESSION['all'])) {
 						    	</tr>
 						    	<tr>
 						    		<td></td>
-						    		<?php for ($h=0; $h < (count($tbltarix2)+1)*count($fenns2); $h++ ): ?>
+						    		<?php for ($h=0; $h < (count($tbltarix2))*count($fenns2); $h++ ): ?>
 						    			<td>
 
 						    				<?php 
@@ -152,8 +157,10 @@ if (isset($_SESSION['all'])) {
 						    				?> 
 
 						    			</td>
-						    		<?php endfor;?>	
-
+						    		<?php endfor;?>
+						    		<?php for ($p=0; $p<count($fenns2);$p++): ?>	
+										<td><?php echo $fenns2[$p];?></td>
+									<?php endfor;?>
 						    	</tr>
 								<?php for ($m = 0; $m < count($table); $m++): ?>
 
