@@ -189,7 +189,7 @@ class db
 		}
 		$conn->bagla();
 	}
-	static public function fenn_yoxlama($user_id, $fenn_id)
+	static public function tarix_yoxlama($user_id, $fenn_id)
 	{
 		$sql = "IF EXISTS (SELECT * FROM qiymets WHERE user_id = '".$user_id."' AND fenn_id = '".$fenn_id."'";
 		$conn = new YeniSQL();
@@ -260,7 +260,6 @@ class db
 	}
 	static public function jurnal($request)
 	{
-		
 		$sg ="";
 		$fn ="";
 		$a = date($request['tarix1']);
@@ -272,7 +271,12 @@ class db
 		$ferq = $diff->format("%a");
 		if ($ferq > 60) {
 			$error = "Intervalin muddeti 60 gunden cox ola bilmez";
-			header("Location: qiymet.php? errName=".$error);
+			header("Location: four.php?errName=".$error);
+			exit();
+		}
+		if($a == $b or $a-$b==1 or $a-$b== -1){
+			$error = "Tarix 1 Tarix2-y bərabər ola bilməz";
+			header("Location: four.php?errName=".$error);
 			exit();
 		}
 	
