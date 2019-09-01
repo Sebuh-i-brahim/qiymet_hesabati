@@ -147,7 +147,7 @@ if (isset($_SESSION['all'])) {
 						    	</tr>
 						    	<tr>
 						    		<td></td>
-						    		<?php for ($h=0; $h < (count($tbltarix2)+1)*count($fenns2); $h++ ): ?>
+						    		<?php for ($h=0; $h < (count($tbltarix2))*count($fenns2); $h++ ): ?>
 						    			<td>
 
 						    				<?php 
@@ -157,8 +157,10 @@ if (isset($_SESSION['all'])) {
 						    				?> 
 
 						    			</td>
-						    		<?php endfor;?>	
-
+						    		<?php endfor;?>
+						    		<?php for ($p=0; $p<count($fenns2);$p++): ?>	
+										<td><?php echo $fenns2[$p];?></td>
+									<?php endfor;?>
 						    	</tr>
 								<?php for ($m = 0; $m < count($table); $m++): ?>
 
