@@ -158,9 +158,9 @@ if (isset($_SESSION['all'])) {
 
 						    			</td>
 						    		<?php endfor;?>
-						    		<?php for ($p=0; $p<count($fenns2);$p++): ?>	
-										<td><?php echo $fenns2[$p];?></td>
-									<?php endfor;?>
+						    		<?php foreach ($fenns2 as $ders): ?>	
+										<td><?php echo $ders;?></td>
+								<?php endforeach;?>
 						    	</tr>
 								<?php for ($m = 0; $m < count($table); $m++): ?>
 
