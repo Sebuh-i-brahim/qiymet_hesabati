@@ -133,6 +133,7 @@ if (isset($_SESSION['all'])) {
 						  	<tbody style="width: 100%">
 						  		<tr>
 						      		<th>Şagirdlər</th>
+
 					      			<?php for ($k=0; $k < count($table); $k++):  ?>
 					      				<?php if(isset($tbltarix2[$k])): ?>
 
@@ -144,14 +145,14 @@ if (isset($_SESSION['all'])) {
 						    	</tr>
 						    	<tr>
 						    		<td></td>
-						    		<?php for ($h=0; $h < (count($tbltarix2))*count($fenns2); $h++ ): ?>
-						    			<td>
+						    		<?php for ($h=0; $h < count($tbltarix2); $h++ ): ?>
+						    			
 
-						    				<?php 
-						    					 echo $fenns1[$h];
-						    				?> 
+						    				<?php for($ty=0; $ty<count($fenns3); $ty++): ?>	
+												<td><?php echo $fenns3[$ty];?></td>
+											<?php endfor;?> 
 
-						    			</td>
+						    			
 						    		<?php endfor;?>
 						    		<?php foreach ($fenns3 as $ders): ?>	
 										<td><?php echo $ders;?></td>
