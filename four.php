@@ -1,15 +1,14 @@
 <?php
+
+
 if (session_status() == PHP_SESSION_NONE) {
 session_start();
 }
-
 $fennJ = file_get_contents("fenn.json");
-
 if(empty($_SESSION['sagird'])){
 	header("Location: back.php?page=four");
 	exit();
 }
-
 if (isset($_SESSION['all'])) {
 	$table = array_filter($_SESSION['all']);
 	$tbltarix1 = array_column($table, "create_date");
@@ -19,8 +18,15 @@ if (isset($_SESSION['all'])) {
 	$tblqiymet = array_column($table, "qiymet");
 	$tblname1 = array_column($table, "name");
 	$tblname2 = array_unique($tblname1);
-}
+	foreach ($fenns2 as $value) {
+		$fenns3[] = $value;
+	}
+	foreach ($tblname2 as $adlar) {
+		$tblad[] = $adlar;
+	}
 
+	header("content-type:text/html; charset=utf-8");
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -41,12 +47,10 @@ if (isset($_SESSION['all'])) {
 		    table-layout: fixed !important;
 		    border: 1px solid;
 		}
-
 		tbody {
 		    display: block !important;
 		    overflow: auto;
 		}
-
 		tr,td{
 			border: 1px solid;
 			text-align: center;
@@ -136,6 +140,7 @@ if (isset($_SESSION['all'])) {
 						  	<tbody style="width: 100%">
 						  		<tr>
 						      		<th>Şagirdlər</th>
+							<?php if(isset($_SESSION['student']) && isset($_SESSION['fenler'])):?>
 					      			<?php for ($k=0; $k < count($table); $k++):  ?>
 					      				<?php if(isset($tbltarix2[$k])): ?>
 
@@ -147,20 +152,18 @@ if (isset($_SESSION['all'])) {
 						    	</tr>
 						    	<tr>
 						    		<td></td>
-						    		<?php for ($h=0; $h < (count($tbltarix2))*count($fenns2); $h++ ): ?>
-						    			<td>
+						    		<?php for ($h=0; $h < count($tbltarix2); $h++ ): ?>
+						    			
 
-						    				<?php 
+						    				<?php for($ty=0; $ty<count($fenns3); $ty++): ?>	
+												<td><?php echo $fenns3[$ty];?></td>
+											<?php endfor;?> 
 
-						    					 echo $fenns1[$h];
-
-						    				?> 
-
-						    			</td>
+						    			
 						    		<?php endfor;?>
-						    		<?php for ($p=0; $p<count($fenns2);$p++): ?>	
-										<td><?php echo $fenns2[$p];?></td>
-									<?php endfor;?>
+						    		<?php foreach ($fenns3 as $ders): ?>	
+										<td><?php echo $ders;?></td>
+									<?php endforeach;?>
 						    	</tr>
 								<?php for ($m = 0; $m < count($table); $m++): ?>
 
@@ -170,26 +173,69 @@ if (isset($_SESSION['all'])) {
 
 											<?php for ($t=0; $t < count($table); $t++): ?>
 										    	<?php if ($tblname1[$t]==$tblname2[$m]): ?>
-										      		<td><?php echo $tblqiymet[$t]; ?></td>
-										      		
+										      		<td>
+
+										      			<?php 
+										      				if (isset($tblqiymet[$t])) {
+										      					echo $tblqiymet[$t];
+										      				}
+										      			?>
+										      	
+										      		</td>
 										   		<?php endif;?>
 											<?php endfor; ?>
-											<?php for($f=0; $f< count($fenns2);$f++):?>
-												<?php  $cem = 0; for ($k=$f; $k < count($table); $k +=count($fenns2)): ?>
+
+											<?php for($f=0;$f<count($fenns3);$f++):?>
+												<?php  $cem = 0; for ($k=$f; $k < count($table); $k +=count($fenns3)): ?>
 										    		<?php if ($tblname1[$k]==$tblname2[$m]): ?>
 										      			
 										      			<?php $cem += $tblqiymet[$k]; ?>
 										 
 										   			<?php endif;?>
 												<?php endfor; ?>
-												<td><?php echo $cem * count($fenns2)*count($tblname2)/count($tblqiymet); ?></td>
+												<td><?php echo $cem * count($fenns3)*count($tblname2)/count($tblqiymet); ?></td>
 											<?php endfor; ?>
 											
 										</tr>
 
 									<?php endif;?>
 
-								<?php endfor;?>		
+								<?php endfor;?>
+							<?php endif?>
+							<?php if(!isset($_SESSION['student']) && !isset($_SESSION['fenler'])):?>
+
+										<?php for ($k=0; $k < count($table); $k++):  ?>
+					      				<?php if(isset($tbltarix2[$k])): ?>
+
+					      					<th colspan="<?php echo count($fenns2);?>"><?php echo date("m-d-Y", strtotime($tbltarix2[$k])); ?></th>
+
+					      				<?php endif;?>
+					      			<?php endfor;?>
+					      			<th colspan="<?php echo count($fenns2);?>"><?php echo "ortalama";?></th>	
+						    	</tr>
+						    	<tr>
+						    		<td></td>
+						    		<?php for ($h=0; $h < count($tbltarix2); $h++ ): ?>
+						    			
+
+						    				<?php for($ty=0; $ty<count($fenns3); $ty++): ?>	
+												<td><?php echo $fenns3[$ty];?></td>
+											<?php endfor;?> 
+
+						    			
+						    		<?php endfor;?>
+						    		<?php foreach ($fenns3 as $ders): ?>	
+										<td><?php echo $ders;?></td>
+									<?php endforeach;?>
+						    	</tr>
+								<?php for ($m = 0; $m < count($tblad); $m++): ?>
+							  		<tr>
+							  			<td class="sagirdTd"><?php echo $tblad[$m]; ?></td>
+									</tr>
+
+								<?php endfor;?>
+
+							<?php endif?>			
 						  	</tbody>
 						</table>
 					<?php endif; ?>
@@ -208,7 +254,6 @@ if (isset($_SESSION['all'])) {
 	    	}
 	    	
 		}
-
 	document.getElementById('Sec').addEventListener('change', function()
 	{
 		if (this.value === null) {
@@ -230,8 +275,6 @@ if (isset($_SESSION['all'])) {
 		    	var arrayg = JSON.parse(this.response);
 		    	
 		    	var key = Object.keys(arrayg);
-
-
 		    	
 		    	if (val.length > 1) {
 		    		
@@ -283,23 +326,18 @@ if (isset($_SESSION['all'])) {
 	{
         var object = {};
         var result = [];
-
         arra1.forEach(function (item) {
           if(!object[item])
               object[item] = 0;
             object[item] += 1;
         })
-
         for (var prop in object) {
            if(object[prop] >= 2) {
                result.push(prop);
            }
         }
-
         return result;
-
     }
-
 	Date.prototype.toDateInputValue = (function() 
 	{
 	    var local = new Date(this);

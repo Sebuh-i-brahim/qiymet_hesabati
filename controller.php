@@ -19,7 +19,7 @@ class Controller
 		if (session_status() == PHP_SESSION_NONE) {
 		    session_start();
 		}
-		if (!isset($_SESSION['sagird'])) {
+		if (empty($_SESSION['sagird'])) {
 			$db = new db();
 			$_SESSION['sagird'] = db::sagird();
 		}
@@ -34,6 +34,7 @@ class Controller
 		}
 		if (empty($_SESSION['sagird'])) {
 			$db = new db();
+
 			$_SESSION['sagird'] = db::sagird();
 		}
 		
@@ -46,7 +47,6 @@ class Controller
 		if (session_status() == PHP_SESSION_NONE) {
 		    session_start();
 		}
-		$Validate = new Validate();
 
 		$data = Validate::all($request);
 
@@ -67,9 +67,8 @@ class Controller
 		if (session_status() == PHP_SESSION_NONE) {
 		    session_start();
 		}
-
 		$db = new db();
-		
+
 		$table = db::edit($request);
 
 		$_SESSION['tarix'] = $request;
@@ -86,7 +85,7 @@ class Controller
 		    session_start();
 		}
 		$db = new db();
-		
+
 		$fenn = db::fenn($request['sagird']);
 
 		$_SESSION['fenn'] = $fenn;
@@ -102,8 +101,6 @@ class Controller
 		if (session_status() == PHP_SESSION_NONE) {
 		    session_start();
 		}
-
-		$Validate = new Validate();
 
 		$data = Validate::qiymet($request);
 
@@ -122,14 +119,19 @@ class Controller
 		$db = new db();
 		
 		$fenns = db::jurnal($request);
-
-		$_SESSION['all'] = $fenns;
-
+		if (isset($request['fenns'])) {
+			$_SESSION['fenler'] = $request['fenns'];
+		}
+		if (isset($request['sagirdler'])) {
+			$_SESSION['student'] = $request['sagirdler'];
+		}	
+		$_SESSION['all'] = $fenns; 
 		self::four();
 	}
 	static public function ajax($request)
 	{
 		$data = json_decode($request['ajax']);
+
 		$db = new db();
 
 		$ajax = db::ajax($data);

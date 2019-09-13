@@ -4,15 +4,15 @@
 class YeniSQL 
 {
 
-	private $hostname = "localhost";
+	protected $hostname = "localhost";
 
-	private $username = "root";
+	protected $username = "root";
 
-	private $password = "";
+	protected $password = "";
 
-	private $db = "jurnal";
+	protected $db = "jurnal";
 
-	private $conn;
+	static protected $conn;
 
 	function __construct()
 	{
@@ -64,36 +64,55 @@ class YeniSQL
 			$conn2->query($table2);
 			$conn2->query($table3);
 		}
-		$this->conn = $conn2;
+		self::$conn = $conn2;
 	}
 
-	public function last_id($sql)
+	function __sleep()
 	{
-		if ($this->conn->query($sql) === TRUE) {
-		  	$last_id = $this->conn->insert_id;
+		$this->conn->close();
+
+		return array('hostname', 'username', 'password','db');
+	}
+
+	function __wakeup($array)
+	{
+		$this->conn = new mysqli($array);
+	}
+
+	function __destruct()
+	{
+		self::$conn->close();
+	}
+
+	static public function last_id($sql)
+	{
+		if (self::$conn->query($sql) === TRUE) {
+		  	$last_id = self::$conn->insert_id;
 		} else {
-		    die($this->conn->error);
+		    die(self::$conn->error);
 		}
 		
 		return $last_id;
 	}
 
-	public function yarat($sql)
+	static public function yarat($sql)
 	{
-		if ($this->conn->query($sql) === TRUE) {
+
+		if (self::$conn->query($sql) === TRUE) {
 		  
 		} else {
-		    die($this->conn->error);
+		    die(self::$conn->error);
 		}
 		
 	}
-	public function all($sql)
+	static public function all($sql)
 	{
-		if ($this->conn->connect_error) {
-		    die("Connection failed: " . $conn->connect_error);
+
+		if (self::$conn->connect_error) {
+		    die("Connection failed: " . self::$conn->connect_error);
 		} 
 		$netice=[];
-		$result = $this->conn->query($sql);
+		$result = self::$conn->query($sql);
 		
 		for($i=0; $i < $result->num_rows; $i++){
 			$netice[$i] = $result->fetch_assoc();
@@ -101,42 +120,44 @@ class YeniSQL
 		
 		return $netice;	
 	}
-	public function yoxla($sql)
+	static public function yoxla($sql)
 	{
-		if ($this->conn->connect_error) {
-		    die("Connection failed: " . $conn->connect_error);
+		if (self::$conn->connect_error) {
+		    die("Connection failed: " . self::$conn->connect_error);
 		} 
 		
-		$result = $this->conn->query($sql);
+		$result = self::$conn->query($sql);
 		
 		return $result;
 	}
-	public function server()
+	static public function server()
 	{
 		$mysqli = new mysqli($this->hostname, $this->username, $this->password, $this->db);
 		if ($mysqli->connect_error) {
-		    die("Connection failed: " . $this->conn->connect_error);
+		    die("Connection failed: " . $mysqli->connect_error);
 		}
 		
 		return $mysqli;
-	}
-	public function bagla()
-	{
-		$this->conn->close();
 	}
 	
 }
 
 
-class db 
+class db extends YeniSQL
 {
-
+	function __construct()
+	{
+		parent::__construct();
+	}
+	function __destruct()
+	{
+		parent::__destruct();
+	}
 	static public function addFenn($data)
 	{
 		$sql = "INSERT INTO sagirdler (name) VALUES ('".$data[0]."')";
 
-		$conn = new YeniSQL();
-		$last_id = $conn->last_id($sql);
+		$last_id = parent::last_id($sql);
 
 		$sql2 = "INSERT INTO fenns (user_id, fenn) VALUES ('";
 		for($i = 1; $i < count($data); $i++){
@@ -147,39 +168,24 @@ class db
 				$sql2 .= $last_id."', '".$data[$i]."'),('";
 			}
 		}
-		$conn->yarat($sql2);
-		$conn->bagla();
-	}
-
-
-	static public function all()
-	{
-		$sql = "SELECT * FROM sagirdler";
-		$conn = new YeniSQL();
-		$data = $conn->all($sql);
-		$conn->bagla();
+		parent::yarat($sql2);
 	}
 
 	static public function sagird()
 	{
 		$sql = "SELECT * FROM sagirdler";
-		$conn = new YeniSQL();
-		return $conn->all($sql);
-		$conn->bagla();
+		return parent::all($sql);
 	}
 
 	static public function fenn($id)
 	{
 		$sql = "SELECT * FROM fenns WHERE user_id = ".$id;
-		$conn = new YeniSQL();
-		return $conn->all($sql);
-		$conn->bagla();
+		return parent::all($sql);
 	}
 	static public function yoxlama($name)
 	{
 		$sql = "IF EXISTS (SELECT * FROM sagirdler WHERE name = ".$name.");";
-		$conn = new YeniSQL();
-		$netice = $conn->yoxla($sql);
+		$netice = parent::yoxla($sql);
 
 		if ($netice == false){
 			return true;
@@ -187,13 +193,12 @@ class db
 		else{
 			return false;
 		}
-		$conn->bagla();
 	}
 	static public function tarix_yoxlama($user_id, $fenn_id)
 	{
 		$sql = "IF EXISTS (SELECT * FROM qiymets WHERE user_id = '".$user_id."' AND fenn_id = '".$fenn_id."'";
-		$conn = new YeniSQL();
-		$netice = $conn->yoxla($sql);
+		
+		$netice = parent::yoxla($sql);
 
 		if ($netice == false){
 			return true;
@@ -201,38 +206,32 @@ class db
 		else{
 			return false;
 		}
-		$conn->bagla();
 	}
 	
 	static public function edit($request)
 	{	
 
 		$sql = "SELECT * FROM qiymets WHERE fenn_id = '".$request['fenn']."' AND create_date BETWEEN '".$request['tarix1']."' AND '".$request['tarix2']."';";
-
-		$conn = new YeniSQL();
 		
-		$netice = $conn->yoxla($sql);
+		$netice = parent::yoxla($sql);
 		
 		if($netice->num_rows == 0){
 			self::qiymet($request);
 		}
-		return $conn->all($sql);
-		$conn->bagla();
+		return parent::all($sql);
 	}
 
 	static public function update($data)
 	{
 
-		$conn = new YeniSQL();
 		foreach ($data as $key => $value) {
 			if($key!="_method"){
 				if($value != ""){
-					$conn->yarat("UPDATE qiymets SET qiymet ='".$value."' WHERE qiymet_id = '".$key."'");
+					parent::yarat("UPDATE qiymets SET qiymet ='".$value."' WHERE qiymet_id = '".$key."'");
 				}
 			}
 		}
 		
-		$conn->bagla();
 	}
 	static public function qiymet($request)
 	{
@@ -250,16 +249,15 @@ class db
 			header("Location: qiymet.php? errName=".$error);
 			exit();
 		}
-		$conn = new YeniSQL();
 		for ($i=1; $i < $ferq; $i++) { 
 			$date = date("Y-m-d H:i:s", strtotime("+".$i." day", strtotime($a)));
 			$sql = "INSERT INTO qiymets (user_id,fenn_id, create_date) VALUES ('".$request['user_id']."','".$request['fenn']."', '".$date."')";
-			$conn->yarat($sql);
+			parent::yarat($sql);
 		}
-		$conn->bagla();
 	}
 	static public function jurnal($request)
 	{
+		
 		$sg ="";
 		$fn ="";
 		$a = date($request['tarix1']);
@@ -274,7 +272,7 @@ class db
 			header("Location: four.php?errName=".$error);
 			exit();
 		}
-		if($a == $b or $a-$b==1 or $a-$b== -1){
+		if($a == $b or date(strtotime($b)-strtotime($a))/86400 == 1 or date(strtotime($b)-strtotime($a))/86400 == -1){
 			$error = "Tarix 1 Tarix2-y bərabər ola bilməz";
 			header("Location: four.php?errName=".$error);
 			exit();
@@ -300,7 +298,7 @@ class db
 		$tr = "qiymets.create_date BETWEEN '".$request['tarix1']."' AND '".$request['tarix2']."'";
 		
 		
-		if($request['sagirdler'] != "" && $request['fenns'] != ""){
+		if(isset($request['sagirdler']) && isset($request['fenns'])){
 
 			for($i=0; $i<count($request['sagirdler']);$i++){
 				if ($i==0) {
@@ -332,7 +330,7 @@ class db
 				}
 			}
 		}
-		elseif($request['sagirdler'] != "" && $request['fenns'] == ""){
+		elseif(isset($request['sagirdler']) && empty($request['fenns'])){
 
 			for($i=0; $i<count($request['sagirdler']);$i++){
 				if ($i==0) {
@@ -344,7 +342,7 @@ class db
 			}
 			$fn.= "";
 		}
-		elseif($request['sagirdler'] == "" && $request['sagirdler'] != ""){
+		elseif(empty($request['sagirdler']) && isset($request['sagirdler'])){
 
 			$sg .= "";
 
@@ -376,19 +374,19 @@ class db
 			INNER JOIN qiymets ON (sagirdler.user_id = qiymets.user_id)
 			INNER JOIN fenns ON (qiymets.fenn_id = fenns.fenn_id)
 			WHERE (".$sg.") AND (".$fn.") AND (".$tr.") ORDER BY sagirdler.name ASC, qiymets.create_date ASC, fenns.fenn";
-		}if($sg == "" && $fn != ""){
+		}elseif($sg == "" && $fn != ""){
 			$sql = "SELECT sagirdler.name, fenns.fenn, qiymets.qiymet, qiymets.create_date
 			FROM sagirdler
 			INNER JOIN qiymets ON (sagirdler.user_id = qiymets.user_id)
 			INNER JOIN fenns ON (qiymets.fenn_id = fenns.fenn_id)
 			WHERE (".$fn.") AND (".$tr.") ORDER BY sagirdler.name ASC, qiymets.create_date ASC, fenns.fenn";
-		}if($sg != "" && $fn == ""){
+		}elseif($sg != "" && $fn == ""){
 			$sql = "SELECT sagirdler.name, fenns.fenn, qiymets.qiymet, qiymets.create_date
 			FROM sagirdler
 			INNER JOIN qiymets ON (sagirdler.user_id = qiymets.user_id)
 			INNER JOIN fenns ON (qiymets.fenn_id = fenns.fenn_id)
 			WHERE (".$sg.") AND (".$tr.") ORDER BY sagirdler.name ASC, qiymets.create_date ASC, fenns.fenn";
-		}if($sg == "" && $fn == ""){
+		}else{
 			$sql = "SELECT sagirdler.name, fenns.fenn, qiymets.qiymet, qiymets.create_date
 			FROM sagirdler
 			INNER JOIN qiymets ON (sagirdler.user_id = qiymets.user_id)
@@ -396,20 +394,15 @@ class db
 			WHERE ".$tr. " ORDER BY sagirdler.name ASC, qiymets.create_date ASC, fenns.fenn";
 		}
 		
-		
-		$conn = new YeniSQL();
 
-		$data = $conn->all($sql);
+		$data = parent::all($sql);
 
 		return $data;
 
-		$conn->bagla();
 	} 
 
 	static public function ajax($data)
 	{	
-
-		
 
 		if (is_array($data)) {
 			$sql = "SELECT fenn, fenn_id FROM fenns WHERE user_id IN(";
@@ -425,9 +418,7 @@ class db
 			$sql = "SELECT fenn, fenn_id FROM fenns WHERE user_id = '".$data."'";
 		}
 
-		$conn = new YeniSQL();
-
-		$data = $conn->all($sql);
+		$data = parent::all($sql);
 		
 		$fenn = array_column($data, "fenn");
 
@@ -436,8 +427,6 @@ class db
 		$fenns = self::array_birlesdir($fenn, $fenn_id);
 
 		echo json_encode($fenns);
-
-		$conn->bagla();
 		
 	}
 	static public function array_birlesdir($keys, $values)

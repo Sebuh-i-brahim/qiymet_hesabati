@@ -2,10 +2,11 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-if (!isset($_SESSION['sagird'])){
+if (empty($_SESSION['sagird'])){
 	header("Location: back.php?page=qiymet");
 	exit();
 }
+header("content-type:text/html; charset=utf-8");
 ?>
 
 <!DOCTYPE html>
@@ -153,12 +154,12 @@ if (!isset($_SESSION['sagird'])){
 					</form>
 				</div>
 				<form method='post' action='back.php' id='qiymet' class="<?php if(!isset($_SESSION['tarix'])){
-					echo("gorunus");} if(isset($_SESSION['tarix']) && $_SESSION['tarix'] == ""){echo("gorunus");}?>">
+					echo("gorunus");}?>">
 					<button type='submit' class='btn btn-primary btn-sm sag'>Qeyd Elə</button>
 					<input type='hidden' name='_method' value='PUT'/>
 				</form>
 				<div>
-				<?php if(isset($_SESSION['tarix']) && $_SESSION['tarix'] != ""):?>
+				<?php if(isset($_SESSION['tarix'])):?>
 					<table class="table table-primary table-striped table-hover">
 						<tbody>
 							<?php 
@@ -204,6 +205,6 @@ if (!isset($_SESSION['sagird'])){
 <?php
 
 if (isset($_SESSION['tarix'])) {
-	$_SESSION['tarix'] = "";
+	unset($_SESSION['tarix']);
 }
 ?>
